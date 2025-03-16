@@ -57,5 +57,6 @@ def search_story():
 import os
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # Lấy PORT từ môi trường Railway
+    port = int(os.environ.get("PORT", 8080))  # Lấy PORT từ biến môi trường Railway
     app.run(host="0.0.0.0", port=port)
+
