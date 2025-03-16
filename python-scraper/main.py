@@ -49,5 +49,8 @@ def search_story():
     data = get_story_chapters(story_name)
     return jsonify(data)
 
+import os
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))  # Lấy PORT từ môi trường Railway
+    app.run(host="0.0.0.0", port=port)
