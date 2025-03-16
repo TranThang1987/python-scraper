@@ -23,4 +23,5 @@ def get_story_chapters(story_name):
     results = soup.select(".list-truyen .item-truyen a")
     
     if not results:
-        return {"error": "Không tìm th
+    return {"error": "Không tìm thấy truyện!"}
+
