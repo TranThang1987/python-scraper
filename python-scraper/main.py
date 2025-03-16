@@ -58,5 +58,7 @@ import os
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))  # Lấy PORT từ biến môi trường Railway
-    app.run(host="0.0.0.0", port=port)
+    print(f"🚀 Đang chạy trên cổng: {port}")  # Kiểm tra PORT đang nhận
+    app.run(host="0.0.0.0", port=port, debug=True)
+
 
