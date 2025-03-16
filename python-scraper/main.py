@@ -1,25 +1,53 @@
 import requests
 from bs4 import BeautifulSoup
+from flask import Flask, request, jsonify
 
-URL = "https://truyenchu.com.vn/"  # Cập nhật trang web mới
+app = Flask(__name__)
 
-def fetch_data():
+BASE_URL = "https://truyenchu.com.vn/tim-kiem"
+
+def get_story_chapters(story_name):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
     }
     
-    try:
-        response = requests.get(URL, headers=headers, timeout=10)
-        
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.text, "html.parser")
-            title = soup.title.text.strip()
-            print(f"Trang chủ: {title}")
-        else:
-            print(f"Lỗi HTTP {response.status_code} khi truy cập {URL}")
+    params = {"q": story_name}
+    response = requests.get(BASE_URL, headers=headers, params=params)
     
-    except requests.exceptions.RequestException as e:
-        print(f"Lỗi kết nối: {e}")
+    if response.status_code != 200:
+        return {"error": f"Lỗi HTTP {response.status_code}"}
+    
+    soup = BeautifulSoup(response.text, "html.parser")
+    results = soup.select(".list-truyen .item-truyen a")
+    
+    if not results:
+        return {"error": "Không tìm thấy truyện!"}
+    
+    first_story_url = "https://truyenchu.com.vn" + results[0]["href"]
+    
+    response = requests.get(first_story_url, headers=headers)
+    soup = BeautifulSoup(response.text, "html.parser")
+    
+    try:
+        chapter_count = soup.select_one(".truyen-detail .so-chuong").text.strip()
+    except AttributeError:
+        chapter_count = "Không rõ số chương"
+    
+    return {
+        "story_name": story_name,
+        "chapter_count": chapter_count,
+        "story_url": first_story_url
+    }
+
+@app.route("/search", methods=["GET"])
+def search_story():
+    story_name = request.args.get("name")
+    
+    if not story_name:
+        return jsonify({"error": "Vui lòng nhập tên truyện!"}), 400
+    
+    data = get_story_chapters(story_name)
+    return jsonify(data)
 
 if __name__ == "__main__":
-    fetch_data()
+    app.run(host="0.0.0.0", port=5000)
